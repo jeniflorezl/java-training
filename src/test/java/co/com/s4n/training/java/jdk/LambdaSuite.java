@@ -14,6 +14,7 @@ public class LambdaSuite {
         int metodoDeEjemplo(int x, int y);
     }
 
+
     class ClaseDeEjemplo{
         public int metodoDeEjemplo1(int z, InterfaceDeEjemplo i){ return z + i.metodoDeEjemplo(1,2); }
 
@@ -110,6 +111,13 @@ public class LambdaSuite {
         }
     }
 
+    class supliers{
+
+        public int operarConSupplier(Supplier<Integer> s){
+            return s.get();
+        }
+    }
+
     @Test
     public void usarUnaFuncionConSupplier(){
         Supplier s1 = () -> {
@@ -170,5 +178,37 @@ public class LambdaSuite {
 
 
     }
+
+    @FunctionalInterface
+    interface InterfaceDeEjercicio{
+        public Consumer<Integer> metodoEjercicio(Supplier<Integer> s1, Supplier<Integer> s2, Supplier<Integer> s3);
+    }
+
+
+    @Test
+    public void test(){
+
+        InterfaceDeEjercicio i = (a,b,d)->{
+            //Integer partial = a.get() + b.get() + d.get() + n;
+            Consumer<Integer> c = n -> {
+                //Integer suma = partial.intValue() + n;
+                Integer suma = a.get() + b.get() + d.get() + n;
+                System.out.println("El resultado es: " + suma);
+            };
+
+            return c;
+
+        };
+
+        Supplier a = () -> 1;
+        Supplier b = () -> 2;
+        Supplier d = () -> 3;
+
+        Consumer<Integer> consumer = i.metodoEjercicio(a,b,d);
+
+        consumer.accept(new Integer(9));
+
+    }
+
 
 }
