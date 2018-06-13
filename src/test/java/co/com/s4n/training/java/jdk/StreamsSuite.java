@@ -79,6 +79,21 @@ public class StreamsSuite {
 
     }
 
+    @Test
+    public void testStreams4Prueba(){
+
+        IntStream rango = IntStream.range(1, 4);
+
+        List<Integer> resCollect = rango.boxed().collect(Collectors.toList());
+
+        assertTrue(resCollect.size()==3);
+        assertTrue(resCollect.contains(new Integer(1)));
+        assertTrue(resCollect.contains(new Integer(2)));
+        assertTrue(resCollect.contains(new Integer(3)));
+        assertFalse(resCollect.contains(new Integer(4)));
+
+    }
+
 
     @Test
     public void testStreams6(){
@@ -87,6 +102,39 @@ public class StreamsSuite {
                 .average();
 
         assertEquals(5D,average.orElseGet(()->666),0D);
+
+    }
+
+    @Test
+    public void testStreamsCollections(){
+        List<String> lista = Arrays.asList("a1", "a2", "a3");
+
+        List<String> stringsNumeros = new ArrayList<>();
+
+        List<Integer> intNumeros = new ArrayList<>();
+
+        for (int i=0; i < lista.size(); i++){
+            //System.out.println(lista.get(i));
+            stringsNumeros.add(lista.get(i).substring(1));
+        }
+
+        for (int i=0; i < stringsNumeros.size(); i++){
+            System.out.println(stringsNumeros.get(i));
+            intNumeros.add(Integer.parseInt(stringsNumeros.get(i)));
+        }
+
+        int max =  intNumeros.get(0);
+
+        for (int i=0; i < intNumeros.size(); i++){
+            if (max < intNumeros.get(i)){
+                max = intNumeros.get(i);
+            }
+        }
+
+        System.out.println("El maximo es:  " + max);
+
+        assertTrue(max==3);
+        assertEquals(3, max);
 
     }
 
@@ -148,6 +196,7 @@ public class StreamsSuite {
         */
 
         List<MyClass> nuevaLista = Stream.of(1, 2, 0, 3, 4)
+                //.map(MyClass::new)
                 .map(x -> new MyClass(x.intValue()))
                 .collect(Collectors.toList());
 
@@ -208,9 +257,11 @@ public class StreamsSuite {
         // Cuántos elementos pasan por el stream?
         boolean b = Stream.of("d2", "a2", "b1", "b3", "c")
                 .map(s -> {
+                    System.out.println("map: " + s);
                     return s.toUpperCase();
                 })
                 .anyMatch(s -> {
+                    System.out.println("anymatch: " + s);
                     return s.startsWith("A");
                 });
 
@@ -236,6 +287,21 @@ public class StreamsSuite {
     @Test
     public void testStreams13() {
         //TODO: cambia el orden de map y filter
+
+        List<String> collect = Stream.of("d2", "a2", "b1", "b3", "c")
+                .filter(s -> {
+                    System.out.println("filter: " + s);
+                    return s.startsWith("A");
+                })
+                .map(s -> {
+                    System.out.println("map: " + s);
+                    return s.toUpperCase();
+                })
+                .collect(Collectors.toList());
+
+        assertTrue(collect.size()==0);
+        assertFalse(collect.contains("A2"));
+
         assertTrue(true);
     }
 
@@ -264,6 +330,7 @@ public class StreamsSuite {
 
         assert(b);
         assert(b1);
+
 
     }
 
@@ -315,6 +382,9 @@ public class StreamsSuite {
                         .collect(Collectors.toList());
 
         assertTrue(filtered.size()==2);
+        //assertTrue((personsByn.get(new Integer(23)).size()==2));
+        assertTrue(filtered.contains(new Person("Peter", 23)));
+        assertTrue(filtered.contains(new Person("Pamela", 23)));
 
     }
 
