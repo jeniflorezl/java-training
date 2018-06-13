@@ -27,6 +27,7 @@ public class StreamsSuite {
                 .stream()
                 .filter(s -> s.startsWith("c"))
                 .map(String::toUpperCase)
+                //.map(s -> s.toUpperCase())
                 .sorted();
 
         List<String> resCollect = resultadoStream.collect(Collectors.toList());
@@ -44,6 +45,19 @@ public class StreamsSuite {
                                         .findFirst();
 
         assertEquals("a1",first.orElseGet(()->"NONE"));
+
+    }
+
+    @Test
+    public void testStreams2ToNone(){
+        List<String> myList = new ArrayList<>();
+        Optional<String> first = myList
+                .stream()
+                .findFirst();
+
+        assertTrue(!first.isPresent());
+        String resp = first.orElseGet(()->"NONE");
+        assertEquals("NONE", resp);
 
     }
 
