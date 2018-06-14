@@ -21,7 +21,7 @@ public class CompletableFutureSuite {
         }
     }
 
-    class Persona{
+    public class Persona{
         String name="";
         int age=0;
 
