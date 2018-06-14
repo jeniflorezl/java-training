@@ -391,7 +391,7 @@ public class CompletableFutureSuite {
 
         String testName = "tThenApplyAsync";
 
-        ExecutorService es = Executors.newFixedThreadPool(3);
+        ExecutorService es = Executors.newFixedThreadPool(1);
 
         CompletableFuture completable = CompletableFuture.supplyAsync(() ->"Hello ", es);
 
