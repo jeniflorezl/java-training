@@ -1,5 +1,6 @@
 package co.com.s4n.training.java.vavr;
 
+import co.com.s4n.training.java.ByPeek;
 import io.vavr.Function1;
 import io.vavr.control.Either;
 import org.junit.Test;
@@ -30,9 +31,13 @@ public class EitherSuite {
         Either<Integer,String> myEitherR = Either.right("String");
         Either<Integer,String> myEitherL = Either.left(14);
         assertTrue("Valide swap before in Either Right", myEitherR.isRight());
+        assertFalse("Valide swap before in Either Right", myEitherR.isLeft());
         assertTrue("Valide swap after in Either Right", myEitherR.swap().isLeft());
+        assertFalse("Valide swap after in Either Right", myEitherR.swap().isRight());
         assertTrue("Valide swap before in Either Left", myEitherL.isLeft());
+        assertFalse("Valide swap before in Either Left", myEitherL.isRight());
         assertTrue("Valide swap after in Either Right", myEitherL.swap().isRight());
+        assertFalse("Valide swap after in Either Right", myEitherL.swap().isLeft());
     }
 
     /**
@@ -51,6 +56,15 @@ public class EitherSuite {
 
         //El Either para operar el lado izquierdo se debe usar un mapLeft.
         assertEquals("Failure - Left Projection", Left(10), e2.mapLeft(it -> it + 5));
+    }
+
+    @Test
+    public void testProjection2(){
+        Either<Integer,Integer> e1 = Either.right(5);
+        Either<Integer,Integer> e2 = Either.left(5);
+
+        //El Either para operar el lado izquierdo se debe usar un mapLeft.
+        assertEquals("Failure - Left Projection", Left(10), e2.map(it -> it + 5));
     }
 
     /**
@@ -97,6 +111,24 @@ public class EitherSuite {
     /**
      * Un Either puede ser filtrado, y en el predicado se pone la condicion
      */
+
+    public Either<String,Integer> suma(int a, int b){
+        return Either.right(a+b);
+    }
+
+    public Either<String,Integer> divide(int a, int b){
+        return a/b>0 ? Either.right(a/b) : Either.left("error");
+    }
+
+    @Test
+    public void testOne(){
+        Either<String, Integer> res = suma(2,3)
+                .flatMap(r1 -> suma(r1, -6)
+                        .flatMap(r2 -> divide(r2, 0)));
+
+        assertFalse(res.isLeft());
+    }
+
     @Test
     public void testEitherFilter() {
 
@@ -104,6 +136,16 @@ public class EitherSuite {
 
         assertEquals("value is even",
                 None(),
+                value.filter(it -> it % 2 == 0));
+    }
+
+    @Test
+    public void testEitherFilterSome() {
+
+        Either<String,Integer> value = Either.right(6);
+
+        assertEquals("value is even",
+                Some(Right(6)),
                 value.filter(it -> it % 2 == 0));
     }
 
@@ -182,6 +224,23 @@ public class EitherSuite {
 
         myEitherL.peekLeft(myConsumer);
         assertEquals("Validete Either with peek","foo", valor[0]);
+    }
+
+
+
+    @Test
+    public void testToMyPeek(){
+        final Integer[] valor = {1};
+        Either<Integer,Integer> left = Either.left(1);
+        Either<Integer,Integer> right = Either.right(1);
+        ByPeek<Integer, Integer> bk = new ByPeek<Integer, Integer>();
+        Consumer<Integer> c1 = i -> {valor[0]=2;};
+        Consumer<Integer> c2 = i -> {valor[0]=4;};
+        bk.ByPeek(left, c1,c2);
+        assertEquals(valor[0], new Integer(2));
+
+        bk.ByPeek(right, c1,c2);
+        assertEquals(valor[0], new Integer(4));
     }
 
     /**
