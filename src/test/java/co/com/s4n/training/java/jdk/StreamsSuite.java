@@ -1,10 +1,7 @@
 package co.com.s4n.training.java.jdk;
 
-import static org.junit.Assert.*;
 
 import co.com.s4n.training.java.*;
-import org.junit.Ignore;
-import org.junit.Test;
 
 import java.util.*;
 import java.util.function.Supplier;
@@ -13,6 +10,13 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+import org.junit.jupiter.api.Test;
+import org.junit.platform.runner.JUnitPlatform;
+import org.junit.runner.RunWith;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+@RunWith(JUnitPlatform.class)
 public class StreamsSuite {
     @Test
     public void smokeTest() {
@@ -305,7 +309,7 @@ public class StreamsSuite {
         assertTrue(true);
     }
 
-    @Test(expected = java.lang.IllegalStateException.class)
+    @Test
     public void testStreams14() {
         Stream<String> stream =
                 Stream.of("d2", "a2", "b1", "b3", "c")
@@ -315,7 +319,10 @@ public class StreamsSuite {
         assertTrue(b);
 
         //Un stream no se puede volver a usar despues de haberse ejecutado una operacion final sobre el :(
-        stream.noneMatch(s -> true);
+        assertThrows(java.lang.IllegalStateException.class, () -> {
+            stream.noneMatch(s -> true);
+        });
+
     }
 
     @Test
@@ -420,7 +427,7 @@ public class StreamsSuite {
                 .stream()
                 .collect(Collectors.averagingInt(p -> p.age));
 
-        assertEquals(averageAge, 19D, 0D);
+        assertEquals(19D, averageAge, 0D);
 
     }
 

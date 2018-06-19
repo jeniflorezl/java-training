@@ -9,7 +9,6 @@ import io.vavr.concurrent.Future;
 import io.vavr.control.Option;
 import io.vavr.control.Try;
 import io.vavr.concurrent.Promise;
-import org.junit.Test;
 import static io.vavr.API.$;
 import static io.vavr.API.Case;
 import static io.vavr.API.Match;
@@ -20,21 +19,22 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import static io.vavr.Predicates.instanceOf;
 import static io.vavr.Patterns.*;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertTrue;
 
 import java.util.function.BiFunction;
 import java.util.function.BinaryOperator;
 import java.util.function.Consumer;
 import static io.vavr.API.*;
-import static org.junit.Assert.assertNotEquals;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.*;
 import java.util.function.Supplier;
-import static junit.framework.TestCase.assertEquals;
-import static org.junit.Assert.*;
 
+import static org.junit.jupiter.api.Assertions.*;
 
+import org.junit.jupiter.api.Test;
+import org.junit.platform.runner.JUnitPlatform;
+import org.junit.runner.RunWith;
+
+@RunWith(JUnitPlatform.class)
 public class FutureSuite {
     // Max wait time for results = WAIT_MILLIS * WAIT_COUNT (however, most probably it will take only WAIT_MILLIS * 1)
     private static final long WAIT_MILLIS = 50;
@@ -53,10 +53,12 @@ public class FutureSuite {
     /**
      * Se prueba que pasa cuando se crea un futuro con error.
      */
-    @Test(expected = Error.class)
+    @Test
     public void testFutureWithError() {
         Future<String> future = Future.of(() -> {throw new Error("Failure");});
-        future.get();
+        assertThrows(Error.class, ()->{
+            future.get();
+        });
     }
 
     /**
@@ -77,7 +79,7 @@ public class FutureSuite {
         //Wait until we are sure that the second thread (onComplete) is done.
         waitUntil(() -> futureSplit.get()[2].equals("split"));
         System.out.println(futureSplit.get());
-        assertArrayEquals("The arrays are different", expected, futureSplit.get());
+        assertArrayEquals(expected, futureSplit.get(),"The arrays are different");
     }
 
     @Test
@@ -97,7 +99,7 @@ public class FutureSuite {
         System.out.println(futureSplit.get()[2]);
         //waitUntil(() -> futureSplit.get()[2].equals("split"));
         System.out.println(futureSplit.get());
-        assertArrayEquals("The arrays are different", expected, futureSplit.get());
+        assertArrayEquals(expected, futureSplit.get(),"The arrays are different");
     }
 
     @Test
@@ -191,9 +193,9 @@ public class FutureSuite {
         Future<Option<Integer>> futureSome = Future.find(myLista, v -> v < 10);
         Future<Option<Integer>> futureSomeM = Future.find(myLista, v -> v > 31);
         Future<Option<Integer>> futureNone = Future.find(myLista, v -> v > 40);
-        assertEquals("Valide find in the List with Future", Some(9), futureSome.get());
-        assertEquals("Valide find in the List with Future", Some(32), futureSomeM.get());
-        assertEquals("Valide find in the List with Future", None(), futureNone.get());
+        assertEquals(Some(9), futureSome.get(), "Valide find in the List with Future");
+        assertEquals(Some(32), futureSomeM.get(), "Valide find in the List with Future");
+        assertEquals(None(), futureNone.get(), "Valide find in the List with Future");
     }
 
     /**
@@ -203,8 +205,8 @@ public class FutureSuite {
     public void testFutureToTransform() {
         Integer futuretransform = Future.of( () -> 9).transform(v -> v.getOrElse(12) + 80);
         Future<Integer> myResult= Future.of(() -> 9).transformValue(v -> Try.of(()-> v.get()+12));
-        assertEquals("Valide transform in a Future",new Integer(89) ,futuretransform);
-        assertEquals("Valide transform in a Future",new Integer (21) ,myResult.get());
+        assertEquals(new Integer(89) ,futuretransform, "Valide transform in a Future");
+        assertEquals(new Integer (21) ,myResult.get(), "Valide transform in a Future");
     }
 
     /**
@@ -221,10 +223,10 @@ public class FutureSuite {
         assertEquals("Validete Onfailure in Future", "pedro",valor[1]);
         myFuture.await();
 
-        assertTrue("Validete Onfailure in Future",myFuture.isFailure());
+        assertTrue(myFuture.isFailure(), "Validete Onfailure in Future");
         waitUntil(() -> valor[1].toString()=="fallo");
         System.out.println(valor[1]);
-        assertEquals("Validete Onfailure in Future", "fallo",valor[1]);
+        assertEquals("fallo",valor[1], "Validete Onfailure in Future");
     }
 
     /**
@@ -234,7 +236,7 @@ public class FutureSuite {
     @Test
     public void testFutureToMap() {
         Future<Integer> myMap = Future.of( () -> "pedro").map(v -> v.length());
-        assertEquals("validate map with future",new Integer(5),myMap.get());
+        assertEquals(new Integer(5),myMap.get(), "validate map with future");
     }
 
     public Future<Integer> suma(int a, int b){
@@ -249,7 +251,7 @@ public class FutureSuite {
     @Test
     public void testFutureToMapFlatMap() {
         Future<Integer> myFlatMap = Future.of( () ->Future.of(() -> 5+9)).flatMap(v -> Future.of(()->v.await().getOrElse(15)));
-        assertEquals("validate map with future",new Integer(14),myFlatMap.get());
+        assertEquals(new Integer(14),myFlatMap.get(), "validate map with future");
     }
 
     @Test
@@ -258,7 +260,7 @@ public class FutureSuite {
                 suma(5,3)
                         .flatMap(v -> suma(v,5)
                 .flatMap(v1 -> divide(v1,1)));
-        assertEquals("validate map with future",new Integer(13),myFlatMap.get());
+        assertEquals(new Integer(13),myFlatMap.get(), "validate map with future");
     }
 
     @Test
@@ -268,7 +270,7 @@ public class FutureSuite {
                     .flatMap(v -> suma(v,-8))
                     .flatMap(v1 -> divide(v1,0));
         myFlatMap.await();
-        assertEquals("validate map with future",new Integer(15),myFlatMap.getOrElse(15));
+        assertEquals(new Integer(15),myFlatMap.getOrElse(15), "validate map with future");
         assertTrue(myFlatMap.isFailure());
     }
 
@@ -283,7 +285,7 @@ public class FutureSuite {
         myLista.forEach(v -> {
             results.add(v.get());
         });
-        assertEquals("Validate Foreach in Future", compare, results);
+        assertEquals(compare, results, "Validate Foreach in Future");
     }
 
     @Test
@@ -307,7 +309,7 @@ public class FutureSuite {
         String future_thread = future.get();
         String main_thread = Thread.currentThread().getName();
         assertNotEquals("Failure - the future must to run in another thread", main_thread, future_thread);
-        assertTrue("Failure - the future must be completed after call get()", future.isCompleted());
+        assertTrue(future.isCompleted(), "Failure - the future must be completed after call get()");
     }
 
     /**
@@ -318,7 +320,7 @@ public class FutureSuite {
         ExecutorService service = Executors.newSingleThreadExecutor();
         Future<Double> future = Future.ofSupplier(service, Math::random);
         future.get();
-        assertTrue("Failure - the future must be completed after call get()", future.isCompleted());
+        assertTrue(future.isCompleted(),"Failure - the future must be completed after call get()");
     }
 
 
@@ -344,8 +346,7 @@ public class FutureSuite {
         List<Future<String>> futureList = List.of(future,future2);
         Future<String> future3 = Future.firstCompletedOf(service,futureList);
 
-        assertEquals("Failure - the future 2 complete his job first",
-                "Hello this is the Future 1",future3.get());
+        assertEquals("Hello this is the Future 1",future3.get(),"Failure - the future 2 complete his job first");
     }
 
     /**
@@ -357,7 +358,7 @@ public class FutureSuite {
         String rescue_msg = "Everything is Ok!";
         Future<String> rescue_future = Future.of(() -> rescue_msg);
         Future<String> final_future = failure.fallbackTo(rescue_future);
-        assertEquals("Failure - The failure must be mapped to the rescue message", rescue_msg, final_future.get());
+        assertEquals(rescue_msg, final_future.get(),"Failure - The failure must be mapped to the rescue message");
     }
 
     /**
@@ -369,7 +370,7 @@ public class FutureSuite {
         Future<String> success = Future.of(() -> initial_msg);
         Future<String> rescue_future = Future.of(() -> "Everything is Ok!");
         Future<String> final_future = success.fallbackTo(rescue_future);
-        assertEquals("Failure - The success future must contain the initial value", initial_msg, final_future.get());
+        assertEquals(initial_msg, final_future.get(),"Failure - The success future must contain the initial value");
     }
 
     /**
@@ -382,9 +383,8 @@ public class FutureSuite {
         Future<String> rescue_future = Future.of(() -> {TimeUnit.SECONDS.sleep(1);throw new Error("Second failure");});
         Future<String> final_future = initial_future.fallbackTo(rescue_future);
         final_future.await();
-        assertEquals("Failure - the result must be the first failure",
-                initial_error,
-                final_future.getCause().get().getMessage()); //Future -> Some -> Error -> String
+        assertEquals(initial_error,
+                final_future.getCause().get().getMessage(),"Failure - the result must be the first failure"); //Future -> Some -> Error -> String
     }
 
     /**
@@ -395,9 +395,9 @@ public class FutureSuite {
         Future<String> future = Future.of(() -> {
             TimeUnit.SECONDS.sleep(2);
             return "End";});
-        assertTrue("Failure - The future was not canceled", future.cancel());
-        assertTrue("Failure - The future must be completed after cancel it", future.isCompleted());
-        assertTrue("Failure - A canceled future must be a Failure",future.isFailure());
+        assertTrue(future.cancel(),"Failure - The future was not canceled");
+        assertTrue(future.isCompleted(),"Failure - The future must be completed after cancel it");
+        assertTrue(future.isFailure(),"Failure - A canceled future must be a Failure");
     }
 
     /**
@@ -408,8 +408,8 @@ public class FutureSuite {
         ExecutorService service = Executors.newSingleThreadExecutor();
         Future<String> future = Future.of(service,() -> "Hello!");
         future.await();
-        assertTrue("Failure - the future was not completed", future.isCompleted());
-        assertFalse("Failure - the future was canceled after its ends", future.cancel());
+        assertTrue(future.isCompleted(),"Failure - the future was not completed");
+        assertFalse(future.cancel(),"Failure - the future was canceled after its ends");
     }
 
     /**
@@ -423,9 +423,9 @@ public class FutureSuite {
         Future<String> onSuccess = futureSplit.onSuccess(res ->{/*do some side effect*/});
         Future<String> onFail = futureSplit.onFailure(res -> {/*do some side effect*/});
         futureSplit.await();
-        assertSame("Failure - onComplete did not return the same future", futureSplit, onComplete);
-        assertSame("Failure - onSuccess did not return the same future", futureSplit, onSuccess);
-        assertSame("Failure - onFail did not return the same future", futureSplit, onFail);
+        assertSame(futureSplit, onComplete,"Failure - onComplete did not return the same future");
+        assertSame(futureSplit, onSuccess,"Failure - onSuccess did not return the same future");
+        assertSame(futureSplit, onFail,"Failure - onFail did not return the same future");
     }
 
     /**
@@ -436,11 +436,11 @@ public class FutureSuite {
         String[] holder = {"Don't take my"};
         Future<String> future = Future.of(() -> "Ghost");
         future.onSuccess(s -> {
-            assertTrue("Future is not completed", future.isCompleted());
+            assertTrue(future.isCompleted(),"Future is not completed");
             holder[0] += " hate personal";
         });
         waitUntil(() -> holder[0].length() > 14);
-        assertEquals("Failure - The message wasn't change after success.", "Don't take my hate personal",holder[0]);
+        assertEquals("Don't take my hate personal",holder[0],"Failure - The message wasn't change after success.");
     }
 
     /**
@@ -459,9 +459,9 @@ public class FutureSuite {
                 futureList, // <Iterable>
                 "Numbers on the list: ", // Seed
                 (acumulator, element) -> acumulator + element); // Fold operation
-        assertEquals("Failure - the result of the fold operation is incorrect",
+        assertEquals(
                 "Numbers on the list: 0123",
-                futureResult.get());
+                futureResult.get(),"Failure - the result of the fold operation is incorrect");
     }
 
     /**
@@ -473,10 +473,10 @@ public class FutureSuite {
         Future<String> future = Future.successful("this_is_a_text");
         Future<String> some = future.filter(s -> s.contains("a_text"));
         Future<String> none = future.filter(s -> s.contains("invalid"));
-        assertNotSame("Failure - The futures shouldn't be the same",future,some);
-        assertNotSame("Failure - The futures shouldn't be the same",future,none);
-        assertEquals("Failure - The filter was not successful", "this_is_a_text", some.get());
-        assertTrue("Failure - The filter was successful", none.isEmpty());
+        assertNotSame(future,some,"Failure - The futures shouldn't be the same");
+        assertNotSame(future,none,"Failure - The futures shouldn't be the same");
+        assertEquals("this_is_a_text", some.get(),"Failure - The filter was not successful");
+        assertTrue(none.isEmpty(),"Failure - The filter was successful");
     }
 
     /**
@@ -491,11 +491,11 @@ public class FutureSuite {
         );
 
         Future<Seq<String>> futureList = Future.sequence(listOfFutures);
-        assertFalse("The future is already completed",futureList.isCompleted());
-        assertTrue("Failure - futureList is not instance of Future",futureList instanceof Future);
+        assertFalse(futureList.isCompleted(),"The future is already completed");
+        assertTrue(futureList instanceof Future,"Failure - futureList is not instance of Future");
 
         Stream<String> stream = (Stream<String>) futureList.get();
-        assertEquals("Stream does not a List",List.of("1 mensaje","2 mensaje").asJava(),stream.asJava());
+        assertEquals(List.of("1 mensaje","2 mensaje").asJava(),stream.asJava(),"Stream does not a List");
     }
 
     /**
@@ -520,10 +520,10 @@ public class FutureSuite {
                 })
         ));
         aRecover.await();
-        assertTrue("Failure - The future wasn't a success",aRecover.isSuccess());
+        assertTrue(aRecover.isSuccess(),"Failure - The future wasn't a success");
 
-        assertFalse("Failure - The threads should be different",thread1[0].equals(thread2[0]));
-        assertEquals("Failure - It's not two",new Integer(2),aRecover.get());
+        assertFalse(thread1[0].equals(thread2[0]),"Failure - The threads should be different");
+        assertEquals(new Integer(2),aRecover.get(),"Failure - It's not two");
         System.out.println("thread1"+thread1[0]);
         System.out.println("thread1"+thread2[0]);
     }
@@ -548,11 +548,11 @@ public class FutureSuite {
                 })
         ));
         aRecover.await();
-        assertTrue("Failure - The future wasn't a success",aRecover.isSuccess());
+        assertTrue(aRecover.isSuccess(),"Failure - The future wasn't a success");
         System.out.println("thread1"+thread1[0]);
         System.out.println("thread1"+thread2[0]);
-        assertTrue("Failure - The threads should be different",thread1[0].equals(thread2[0]));
-        assertEquals("Failure - It's not two",new Integer(2),aRecover.get());
+        assertTrue(thread1[0].equals(thread2[0]),"Failure - The threads should be different");
+        assertEquals(new Integer(2),aRecover.get(),"Failure - It's not two");
     }
 
     @Test
@@ -586,9 +586,9 @@ public class FutureSuite {
                 }))
         ));
         aRecover.await();
-        assertTrue("Failure - The future wasn't a success",aRecover.isSuccess());
-        assertFalse("Failure - The threads should be different",thread1[0].equals(thread2[0]));
-        assertEquals("Failure - It's not one",new Integer(1),aRecover.get());
+        assertTrue(aRecover.isSuccess(),"Failure - The future wasn't a success");
+        assertFalse(thread1[0].equals(thread2[0]),"Failure - The threads should be different");
+        assertEquals(new Integer(1),aRecover.get(),"Failure - It's not one");
     }
 
     @Test
@@ -611,7 +611,7 @@ public class FutureSuite {
                 Case($Future($(instanceOf(Error.class))), "Failure!"),
                 Case($Future($()), "Success!"),
                 Case($(), "Double failure"));
-        assertEquals("Failure - The future should be a success", "Success!", result);
+        assertEquals( "Success!", result,"Failure - The future should be a success");
     }
 
     /**
@@ -632,7 +632,7 @@ public class FutureSuite {
                 Case($Future($()), "Success!"),
                 Case($(), "Double failure"));
 
-        assertEquals("Failure - The future should be a success",
+        assertEquals(
                 "Failure!",
                 result);
     }
@@ -645,9 +645,8 @@ public class FutureSuite {
         Try<String> tryValue = Try.of(() -> {throw new Error("Try again!");});
         Future<String> future = Future.fromTry(tryValue);
         future.await();
-        assertTrue("Failure - A future from a failed Try must be Failure", future.isFailure());
-        assertEquals("Failure - The cause of the failure future must be the same of the tryValue",
-                tryValue.getCause(),
+        assertTrue(future.isFailure());
+        assertEquals(tryValue.getCause(),
                 future.getCause().get()); //Future -> Option -> Throwable
     }
 
@@ -659,8 +658,8 @@ public class FutureSuite {
         Try<String> tryValue = Try.of(() -> "Hi!");
         Future<String> future = Future.fromTry(tryValue);
         future.await();
-        assertTrue("Failure - A future from a success Try must be success", future.isSuccess());
-        assertEquals("Failure - A future from a success Try must be contain the value", "Hi!",future.get());
+        assertTrue(future.isSuccess());
+        assertEquals("Hi!",future.get());
     }
 
     /**
@@ -674,7 +673,7 @@ public class FutureSuite {
         ExecutorService service2 = Executors.newSingleThreadExecutor();
         Future<String> future = Future.fromJavaFuture(service2, javaFuture);
         try {
-            assertEquals("Failure - vavr Future and java Future had different results", javaFuture.get(), future.get());
+            assertEquals(javaFuture.get(), future.get());
         } catch (Exception e) {
             fail(e.getMessage());
         }
@@ -689,9 +688,9 @@ public class FutureSuite {
         //Future can be created from a promise
         Future<String> future = promise.future();
         future.await();
-        assertTrue("The future did not complete", future.isCompleted());
-        assertTrue("The promise did not complete", promise.isCompleted());
-        assertEquals("The future does not have the value from the promise", "success!", future.get());
+        assertTrue(future.isCompleted());
+        assertTrue(promise.isCompleted());
+        assertEquals( "success!", future.get());
     }
 
     /**
@@ -711,8 +710,8 @@ public class FutureSuite {
         });
         Future<Integer> myFutureOne = mypromise.future();
         myFutureOne.await();
-        assertEquals("Failure - Validate Future with Promise",new Integer(15),myFutureOne.get());
-        assertFalse("Failure - Validate myFuture is not complete",myFuture.isCompleted());
+        assertEquals(new Integer(15),myFutureOne.get());
+        assertFalse(myFuture.isCompleted());
     }
 
     //Exercise

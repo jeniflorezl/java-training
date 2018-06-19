@@ -2,10 +2,15 @@ package co.com.s4n.training.java.vavr;
 
 import io.vavr.Lazy;
 import io.vavr.concurrent.Future;
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.*;
+
+import org.junit.jupiter.api.Test;
+import org.junit.platform.runner.JUnitPlatform;
+import org.junit.runner.RunWith;
 
 import java.util.function.Supplier;
 
+@RunWith(JUnitPlatform.class)
 public class LazySuite {
 
         @Test

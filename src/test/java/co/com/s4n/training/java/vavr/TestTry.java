@@ -2,14 +2,15 @@ package co.com.s4n.training.java.vavr;
 
 import co.com.s4n.training.java.PersonTry;
 import io.vavr.control.Try;
-import org.junit.Test;
 
 import static io.vavr.API.For;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertTrue;
-import static junit.framework.TestCase.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
+import org.junit.jupiter.api.Test;
+import org.junit.platform.runner.JUnitPlatform;
+import org.junit.runner.RunWith;
 
+@RunWith(JUnitPlatform.class)
 public class TestTry {
 
     @Test
@@ -29,7 +30,6 @@ public class TestTry {
                                 ));
 
         assertEquals(Try.of(() -> "Felicitaciones"),resultado2);
-
 
     }
 
