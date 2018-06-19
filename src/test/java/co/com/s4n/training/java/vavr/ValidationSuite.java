@@ -306,8 +306,20 @@ public class ValidationSuite
 
     @Test
     public void testValidatorAndInvalid() {
-        ArrayList<String> msg = new ArrayList<>();
-        ArrayList<String> msg2 = new ArrayList<>();
+
+        class Validar {
+            ArrayList<String> msg = new ArrayList<>();
+            ArrayList<String> msg2 = new ArrayList<>();
+
+            public Validation<Error,String> ejecutar(Validation<Error,String> v){
+                if(v.isValid()) {
+                    msg.add("Operacion " + msg.size());
+                }else{
+                    msg2.add("Operacion2 " + msg2.size());
+                }
+                return v;
+            }
+        }
 
         Validation<Error, String> v1 = Validation.valid("Jeniffer");
         Validation<Error, String> v2 = Validation.valid("Florez");
@@ -316,17 +328,15 @@ public class ValidationSuite
         Validation<Error, String> v5 = Validation.invalid(new Error("Stop!"));
 
 
-        Consumer<Validation<Error,String>> consumer = s -> {
-            if(s.isValid()) {
-                msg.add("Operacion " + msg.size());
-            }else{
-                msg2.add("Operacion2 " + msg2.size());
-            }
-        };
+        Validar v = new Validar();
 
-        Validation.Builder5<Error, String, String, String, String, String> finalValidation = Validation
-                .combine(v1, v2, v5, v3, v4);
+        Validation.Builder5<Error, String, String, String, String, String> finalV = Validation
+                .combine(v.ejecutar(v1), v.ejecutar(v2), v.ejecutar(v5), v.ejecutar(v3), v.ejecutar(v4));
 
+        assertEquals("Valids",
+                Arrays.asList("Operacion 0","Operacion 1","Operacion 2", "Operacion 3"), v.msg);
+        assertEquals("Invalids",
+                Arrays.asList("Operacion2 0"), v.msg2);
     }
 
     /**
