@@ -1,5 +1,6 @@
 package co.com.s4n.training.java.vavr;
 
+import co.com.s4n.training.java.Person;
 import org.junit.Test;
 
 
@@ -10,12 +11,13 @@ import static io.vavr.API.None;
 import io.vavr.Tuple;
 import io.vavr.Tuple2;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import static io.vavr.API.*;
 import static io.vavr.Patterns.$None;
 import static io.vavr.Patterns.$Some;
 
-import java.util.List;
 import java.util.Optional;
 
 import static io.vavr.API.Some;
@@ -342,5 +344,46 @@ public class OptionSuite {
 
 
         assertEquals(res.getOrElse(666).intValue(),6);
+    }
+
+    @Test
+    public void exerciseflatMapInOption(){
+
+        Option<Integer> resultado =
+                Person.person("Jeniffer", 22)
+                        .flatMap(s -> Person.format(s)
+                                .flatMap(r -> Person.tamaño(r)
+                                ));
+        System.out.println("exercise FlatMap"+resultado);
+        assertEquals(8, resultado.getOrElse(666).intValue());
+
+        Option<String> resultado2 =
+                Person.person("Jeniffer", 22)
+                        .flatMap(s -> Person.career(s, "ing informatica")
+                                .flatMap(r -> Person.state("Terminado")
+                                ));
+        System.out.println("exercise FlatMap1"+resultado2);
+        //assertEquals(resultado2,None());
+        assertEquals(Some("Felicitaciones"), resultado2);
+
+
+    }
+
+    @Test
+    public void exerciseflatMapInOptionConFor(){
+
+        Option<Integer> resultado =
+                For(Person.person("Jeniffer", 22), s1 ->
+                    For(Person.format(s1), s2 ->
+                        Person.tamaño(s2))).toOption();
+
+        assertEquals(8, resultado.getOrElse(666).intValue());
+
+        Option<String> resultado2 =
+                For(Person.person("Jeniffer", 22), s1 ->
+                    For(Person.career(s1, "ing informatica"), s2 ->
+                        Person.state("Terminado"))).toOption();
+
+        assertEquals(Some("Felicitaciones"), resultado2);
     }
 }
