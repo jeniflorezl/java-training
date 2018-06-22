@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.platform.runner.JUnitPlatform;
 import org.junit.runner.RunWith;
@@ -105,7 +106,9 @@ public class StreamsSuite {
                 .map(n -> 2 * n + 1)
                 .average();
 
-        assertEquals(5D,average.orElseGet(()->666),0D);
+        System.out.println("test 6" +average.getAsDouble());
+        assertEquals(5D, average.orElseGet(()->666));
+        //assertEquals(5D, average.orElseGet(()->666), 0D);
 
     }
 
@@ -388,10 +391,15 @@ public class StreamsSuite {
                         .filter(p -> p.name.startsWith("P"))
                         .collect(Collectors.toList());
 
+        //assertTrue(filtered.contains(new Person("Peter", 23)));
+        //assertTrue(filtered.contains(new Person("Pamela", 23)));
         assertTrue(filtered.size()==2);
-        //assertTrue((personsByn.get(new Integer(23)).size()==2));
-        assertTrue(filtered.contains(new Person("Peter", 23)));
-        assertTrue(filtered.contains(new Person("Pamela", 23)));
+        assertTrue(filtered.get(0).name=="Peter");
+        assertTrue(filtered.get(0).age==23);
+        assertTrue(filtered.get(1).name=="Pamela");
+        assertTrue(filtered.get(1).age==23);
+
+        //assertTrue(filtered.contains(new Person("Peter", 23)));
 
     }
 
@@ -427,7 +435,8 @@ public class StreamsSuite {
                 .stream()
                 .collect(Collectors.averagingInt(p -> p.age));
 
-        assertEquals(19D, averageAge, 0D);
+        assertTrue(averageAge.equals(19D));
+        //assertEquals(19D, averageAge, 0D);
 
     }
 
